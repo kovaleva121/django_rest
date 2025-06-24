@@ -1,10 +1,9 @@
-from tkinter.font import names
-
 from django.urls import path
 from rest_framework.routers import DefaultRouter
 from materials.apps import MaterialsConfig
 
-from materials.views import CourseViewSet, LessonCreateApiView, LessonListApiView, LessonUpdateApiView, LessonDestroyApiView, LessonRetrieveApiView
+from materials.views import CourseViewSet, LessonCreateApiView, LessonListApiView, LessonUpdateApiView, \
+    LessonDestroyApiView, LessonRetrieveApiView
 
 app_name = MaterialsConfig.name
 
@@ -17,5 +16,5 @@ urlpatterns = [
     path('lessons/<int:pk>/update/', LessonUpdateApiView.as_view(), name='lesson_update'),
     path('lessons/<int:pk>/delete/', LessonDestroyApiView.as_view(), name='lesson_delete'),
 
-            ]
+]
 urlpatterns += router.urls
