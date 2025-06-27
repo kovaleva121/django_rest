@@ -24,7 +24,7 @@ class Lesson(models.Model):
     preview = models.ImageField(upload_to='materials/preview/course/lesson', blank=True, null=True,
                                 verbose_name='Превью урока',
                                 help_text='Загрузите превью урока')
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, verbose_name='Курс', help_text='Выберите курс')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, verbose_name='lessons', help_text='Выберите курс', related_name='lessons')
     link = models.URLField(blank=True, null=True, verbose_name='Ссылка', help_text='Прикрепите ссылку')
 
     def __str__(self):
