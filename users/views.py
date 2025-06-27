@@ -1,8 +1,10 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
 from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView, RetrieveAPIView, DestroyAPIView
-from users.models import Payments
-from users.serializers import PaymentsSerializer
+from rest_framework.permissions import AllowAny
+
+from users.models import Payments, User
+from users.serializers import PaymentsSerializer, UserSerializer
 
 
 class PaymentsCreateApiView(CreateAPIView):
@@ -31,3 +33,33 @@ class PaymentsRetrieveApiView(RetrieveAPIView):
 class PaymentsDestroyApiView(DestroyAPIView):
     queryset = Payments.objects.all()
     serializer_class = PaymentsSerializer
+
+
+class UserCreateAPIView(CreateAPIView):
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+    permission_classes = [AllowAny]
+
+    def perform_create(self, serializer):
+        user = serializer.save(is_active=True)
+        user.set_password(user.password)
+
+
+class UserListAPIView(ListAPIView):
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+
+
+class UserUpdateAPIView(UpdateAPIView):
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+
+
+class UserRetrieveAPIView(RetrieveAPIView):
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+
+
+class UserDestroyAPIView(DestroyAPIView):
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
