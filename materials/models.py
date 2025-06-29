@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 
@@ -8,6 +9,8 @@ class Course(models.Model):
                                 help_text='Загрузите превью курса')
     description = models.TextField(blank=True, null=True, verbose_name='Описание курса',
                                    help_text='Введите описание курса')
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Пользователь',
+                              help_text='Укажите пользователя')
 
     class Meta:
         verbose_name = 'Курс'
@@ -24,8 +27,11 @@ class Lesson(models.Model):
     preview = models.ImageField(upload_to='materials/preview/course/lesson', blank=True, null=True,
                                 verbose_name='Превью урока',
                                 help_text='Загрузите превью урока')
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, verbose_name='lessons', help_text='Выберите курс', related_name='lessons')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, verbose_name='lessons', help_text='Выберите курс',
+                               related_name='lessons')
     link = models.URLField(blank=True, null=True, verbose_name='Ссылка', help_text='Прикрепите ссылку')
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Пользователь',
+                              help_text='Укажите пользователя')
 
     def __str__(self):
         return self.title
