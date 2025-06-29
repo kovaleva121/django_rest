@@ -4,7 +4,7 @@ from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView, R
 from rest_framework.permissions import AllowAny
 
 from users.models import Payments, User
-from users.serializers import PaymentsSerializer, UserSerializer
+from users.serializers import PaymentsSerializer, UserSerializer, UserUpdateSerializer
 
 
 class PaymentsCreateApiView(CreateAPIView):
@@ -43,6 +43,7 @@ class UserCreateAPIView(CreateAPIView):
     def perform_create(self, serializer):
         user = serializer.save(is_active=True)
         user.set_password(user.password)
+        user.save()
 
 
 class UserListAPIView(ListAPIView):
@@ -51,13 +52,19 @@ class UserListAPIView(ListAPIView):
 
 
 class UserUpdateAPIView(UpdateAPIView):
-    serializer_class = UserSerializer
+    serializer_class = UserUpdateSerializer
     queryset = User.objects.all()
+
+    def get_object(self):
+        return self.request.user
 
 
 class UserRetrieveAPIView(RetrieveAPIView):
-    serializer_class = UserSerializer
+    serializer_class = UserUpdateSerializer
     queryset = User.objects.all()
+
+    def get_object(self):
+        return self.request.user
 
 
 class UserDestroyAPIView(DestroyAPIView):
