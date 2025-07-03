@@ -13,15 +13,15 @@ class PaymentsSerializer(ModelSerializer):
 class UserSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'email', 'phone', 'city']
-        read_only_fields = ['id', 'email']
+        fields = ['id', 'email', 'phone', 'city', 'password']
+        read_only_fields = ['id']
 
 class UserUpdateSerializer(ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'email', 'phone', 'city']
 
-    def validate(self, attrs):
-        if self.instance != self.context['request'].user:
-            PermissionDenied('Вы не можете редактировать чужой профиль')
-            return attrs
+    # def validate(self, attrs):
+    #     if self.instance != self.context['request'].user:
+    #         PermissionDenied('Вы не можете редактировать чужой профиль')
+    #         return attrs

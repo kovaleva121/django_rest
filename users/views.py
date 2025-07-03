@@ -42,6 +42,7 @@ class UserCreateAPIView(CreateAPIView):
 
     def perform_create(self, serializer):
         user = serializer.save(is_active=True)
+        print(user.password, 111)
         user.set_password(user.password)
         user.save()
 
