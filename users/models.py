@@ -36,3 +36,9 @@ class Payments(models.Model):
     payment_amount = models.PositiveIntegerField(verbose_name='Оплата', help_text='Введите сумму оплаты')
     payment_method = models.CharField(max_length=50, choices=PAYMENT_METHOD, verbose_name='Способ оплаты',
                                       help_text='Выберите способ оплаты')
+
+
+class Subscription(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Пользователь',
+                             help_text='Укажите пользователя')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, verbose_name='Курс',  help_text='Выберите курс')
