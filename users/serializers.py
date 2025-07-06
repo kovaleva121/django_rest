@@ -1,7 +1,7 @@
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.serializers import ModelSerializer
 
-from users.models import Payments, User
+from users.models import Payments, User, Subscription
 
 
 class PaymentsSerializer(ModelSerializer):
@@ -21,7 +21,7 @@ class UserUpdateSerializer(ModelSerializer):
         model = User
         fields = ['id', 'email', 'phone', 'city']
 
-    # def validate(self, attrs):
-    #     if self.instance != self.context['request'].user:
-    #         PermissionDenied('Вы не можете редактировать чужой профиль')
-    #         return attrs
+class SubscriptionSerializer(ModelSerializer):
+    class Meta:
+        model = Subscription
+        fields = '__all__'
