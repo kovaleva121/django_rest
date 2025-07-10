@@ -11,6 +11,7 @@ class Course(models.Model):
                                    help_text='Введите описание курса')
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Пользователь',
                               help_text='Укажите пользователя')
+    amount = models.PositiveIntegerField(verbose_name='Цена', help_text='Введите цену курса')
 
     class Meta:
         verbose_name = 'Курс'
@@ -32,6 +33,7 @@ class Lesson(models.Model):
     link = models.URLField(blank=True, null=True, verbose_name='Ссылка', help_text='Прикрепите ссылку')
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Пользователь',
                               help_text='Укажите пользователя')
+    amount = models.PositiveIntegerField(verbose_name='Цена', help_text='Введите цену курса')
 
     def __str__(self):
         return self.title
