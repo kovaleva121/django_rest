@@ -12,6 +12,7 @@ class Course(models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Пользователь',
                               help_text='Укажите пользователя')
     amount = models.PositiveIntegerField(verbose_name='Цена', help_text='Введите цену курса')
+    last_updated = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = 'Курс'
@@ -19,6 +20,14 @@ class Course(models.Model):
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        # Проверяем, обновляется ли существующий курс
+        if self.pk:
+            from users.tasks import send_course_update_emails
+            # Запускаем асинхронную задачу
+            send_course_update_emails.delay(self.id)
+        super().save(*args, **kwargs)
 
 
 class Lesson(models.Model):
