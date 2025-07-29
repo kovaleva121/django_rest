@@ -48,7 +48,6 @@ source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-```
 Применить миграции:
 ```
 python manage.py migrate
@@ -57,3 +56,42 @@ python manage.py migrate
 ```
 python manage.py createsuperuser
 ```
+Создайте файл .env и заполните его:
+```
+cp .env.example .env
+```
+Соберите и запустите контейнеры:
+```
+docker-compose up --build -d
+```
+После запуска проект будет доступен по адресу:
+```
+http://localhost:8000
+```
+Остановка проекта:
+```
+docker-compose down
+```
+Остановка с удалением volumes:
+```
+docker-compose down -v
+```
+Пересборка проекта:
+```
+docker-compose up --build -d
+```
+Просмотр логов:
+```
+docker-compose logs <service_name>  # web, db, redis, celery, celery-beat
+```
+
+## Структура проекта
+- /code - корневая директория проекта внутри контейнера
+
+- /code/static - статические файлы
+
+- /var/lib/postgresql/data - данные PostgreSQL
+
+- /data - данные Redis
+
+- /var/lib/celery - состояние Celery Beat

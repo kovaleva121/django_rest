@@ -6,7 +6,7 @@ from celery.schedules import crontab
 import config.settings
 
 # Установка переменной окружения для настроек проекта
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_rest.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 
 # Создание экземпляра объекта Celery
 app = Celery('config')
@@ -17,9 +17,9 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 # Автоматическое обнаружение и регистрация задач из файлов tasks.py в приложениях Django
 app.autodiscover_tasks()
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_rest.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 
-app = Celery('django_rest')
+app = Celery('config')
 app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
 
