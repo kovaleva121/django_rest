@@ -10,48 +10,48 @@ class LessonCRUDTestCase(APITestCase):
     def setUp(self):
         # Создаем группу модераторов
         from django.contrib.auth.models import Group
-        moder_group, _ = Group.objects.get_or_create(name='moders')
+
+        moder_group, _ = Group.objects.get_or_create(name="moders")
         # Создаем пользователей
-        self.user = User.objects.create(
-            email='test@test.com',
-            password='testpass'
-        )
+        self.user = User.objects.create(email="test@test.com", password="testpass")
         self.moderator = User.objects.create(
-            email='moder@test.com',
-            password='moderpass',
-            is_staff=True
+            email="moder@test.com", password="moderpass", is_staff=True
         )
         self.moderator.groups.add(moder_group)  # Добавляем в группу модераторов
 
         # Создаем курс
         self.course = Course.objects.create(
-            title='Test Course',
-            description='Test Description',
-            owner=self.user
+            title="Test Course", description="Test Description", owner=self.user
         )
 
         # Создаем урок
         self.lesson = Lesson.objects.create(
-            title='Test Lesson',
-            description='Test Lesson Description',
+            title="Test Lesson",
+            description="Test Lesson Description",
             course=self.course,
             owner=self.user,
-            link='https://www.youtube.com/watch?v=test'
+            link="https://www.youtube.com/watch?v=test",
         )
 
         # URL для тестирования
-        self.list_url = reverse('materials:lesson_list')
-        self.create_url = reverse('materials:lesson_create')
-        self.retrieve_url = reverse('materials:lesson_retrieve', kwargs={'pk': self.lesson.pk})
-        self.update_url = reverse('materials:lesson_update', kwargs={'pk': self.lesson.pk})
-        self.delete_url = reverse('materials:lesson_delete', kwargs={'pk': self.lesson.pk})
+        self.list_url = reverse("materials:lesson_list")
+        self.create_url = reverse("materials:lesson_create")
+        self.retrieve_url = reverse(
+            "materials:lesson_retrieve", kwargs={"pk": self.lesson.pk}
+        )
+        self.update_url = reverse(
+            "materials:lesson_update", kwargs={"pk": self.lesson.pk}
+        )
+        self.delete_url = reverse(
+            "materials:lesson_delete", kwargs={"pk": self.lesson.pk}
+        )
 
     def test_lesson_list_authenticated(self):
         """Тест получения списка уроков авторизованным пользователем"""
         self.client.force_authenticate(user=self.user)
         response = self.client.get(self.list_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(len(response.data["results"]), 1)
 
     def test_lesson_list_unauthenticated(self):
         """Тест получения списка уроков неавторизованным пользователем"""
@@ -62,26 +62,26 @@ class LessonCRUDTestCase(APITestCase):
         """Тест создания урока владельцем"""
         self.client.force_authenticate(user=self.user)
         data = {
-            'title': 'New Lesson',
-            'description': 'New Description',
-            'course': self.course.pk,
-            'link': 'https://youtube.com/watch?v=test',
-            'owner': self.user.pk
+            "title": "New Lesson",
+            "description": "New Description",
+            "course": self.course.pk,
+            "link": "https://youtube.com/watch?v=test",
+            "owner": self.user.pk,
         }
-        response = self.client.post(self.create_url, data, format='json')
+        response = self.client.post(self.create_url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_lesson_create_moderator(self):
         """Тест что модератор не может создать урок"""
         self.client.force_authenticate(user=self.moderator)
         data = {
-            'title': 'New Lesson',
-            'description': 'New Description',
-            'course': self.course.pk,
-            'link': 'https://youtube.com/valid',
-            'owner': self.moderator.pk
+            "title": "New Lesson",
+            "description": "New Description",
+            "course": self.course.pk,
+            "link": "https://youtube.com/valid",
+            "owner": self.moderator.pk,
         }
-        response = self.client.post(self.create_url, data, format='json')
+        response = self.client.post(self.create_url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_lesson_retrieve_owner(self):
@@ -89,7 +89,7 @@ class LessonCRUDTestCase(APITestCase):
         self.client.force_authenticate(user=self.user)
         response = self.client.get(self.retrieve_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['title'], self.lesson.title)
+        self.assertEqual(response.data["title"], self.lesson.title)
 
     def test_lesson_retrieve_moderator(self):
         """Тест получения урока модератором"""
@@ -100,20 +100,20 @@ class LessonCRUDTestCase(APITestCase):
     def test_lesson_update_owner(self):
         """Тест обновления урока владельцем"""
         self.client.force_authenticate(user=self.user)
-        data = {'title': 'Updated Title'}
+        data = {"title": "Updated Title"}
         response = self.client.patch(self.update_url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.lesson.refresh_from_db()
-        self.assertEqual(self.lesson.title, 'Updated Title')
+        self.assertEqual(self.lesson.title, "Updated Title")
 
     def test_lesson_update_moderator(self):
         """Тест обновления урока модератором"""
         self.client.force_authenticate(user=self.moderator)
-        data = {'title': 'Updated by Moderator'}
+        data = {"title": "Updated by Moderator"}
         response = self.client.patch(self.update_url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.lesson.refresh_from_db()
-        self.assertEqual(self.lesson.title, 'Updated by Moderator')
+        self.assertEqual(self.lesson.title, "Updated by Moderator")
 
     def test_lesson_delete_owner(self):
         """Тест удаления урока владельцем"""
@@ -133,29 +133,22 @@ class LessonCRUDTestCase(APITestCase):
 class SubscriptionTestCase(APITestCase):
     def setUp(self):
         # Создаем пользователя
-        self.user = User.objects.create(
-            email='test@test.com',
-            password='testpass'
-        )
+        self.user = User.objects.create(email="test@test.com", password="testpass")
 
         # Создаем курс
         self.course = Course.objects.create(
-            title='Test Course',
-            description='Test Description',
-            owner=self.user
+            title="Test Course", description="Test Description", owner=self.user
         )
 
         # URL для подписки
-        self.subscription_url = reverse('users:subscriptions')
+        self.subscription_url = reverse("users:subscriptions")
 
     def test_subscribe_unsubscribe(self):
         self.client.force_authenticate(user=self.user)
 
         # Подписываемся
         response = self.client.post(
-            self.subscription_url,
-            {'course_id': self.course.pk},
-            format='json'
+            self.subscription_url, {"course_id": self.course.pk}, format="json"
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(
@@ -164,9 +157,7 @@ class SubscriptionTestCase(APITestCase):
 
         # Отписываемся
         response = self.client.post(
-            self.subscription_url,
-            {'course_id': self.course.pk},
-            format='json'
+            self.subscription_url, {"course_id": self.course.pk}, format="json"
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(
@@ -176,8 +167,7 @@ class SubscriptionTestCase(APITestCase):
     def test_subscribe_unauthenticated(self):
         """Тест что неавторизованный пользователь не может подписаться"""
         response = self.client.post(
-            self.subscription_url,
-            {'course_id': self.course.pk}
+            self.subscription_url, {"course_id": self.course.pk}
         )
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -185,7 +175,6 @@ class SubscriptionTestCase(APITestCase):
         """Тест подписки на несуществующий курс"""
         self.client.force_authenticate(user=self.user)
         response = self.client.post(
-            self.subscription_url,
-            {'course_id': 999}  # Несуществующий ID
+            self.subscription_url, {"course_id": 999}  # Несуществующий ID
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

@@ -11,9 +11,9 @@ class LessonSerializer(ModelSerializer):
 
     class Meta:
         model = Lesson
-        fields = '__all__'
+        fields = "__all__"
         extra_kwargs = {
-            'link': {'validators': [validate_only_youtube_links], 'required': False}
+            "link": {"validators": [validate_only_youtube_links], "required": False}
         }
 
 
@@ -25,16 +25,20 @@ class CourseSerializer(ModelSerializer):
 
     class Meta:
         model = Course
-        fields = ('title', 'preview', 'description', 'lessons_count', 'lessons', 'is_subscribed')
+        fields = (
+            "title",
+            "preview",
+            "description",
+            "lessons_count",
+            "lessons",
+            "is_subscribed",
+        )
 
     def get_lessons_count(self, obj):
         return obj.lessons.count()
 
     def get_is_subscribed(self, obj):
-        request = self.context.get('request')
+        request = self.context.get("request")
         if request and request.user.is_authenticated:
-            return Subscription.objects.filter(
-                user=request.user,
-                course=obj
-            ).exists()
+            return Subscription.objects.filter(user=request.user, course=obj).exists()
         return False
