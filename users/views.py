@@ -104,7 +104,7 @@ class UserDestroyAPIView(DestroyAPIView):
 
 
 class SubscriptionApiView(APIView):
-    def post(self):
+    def post(self, request):
         user = self.request.user
         course_id = self.request.data.get("course_id")
         course_item = get_object_or_404(Course, id=course_id)

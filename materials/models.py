@@ -28,7 +28,7 @@ class Course(models.Model):
         help_text="Укажите пользователя",
     )
     amount = models.PositiveIntegerField(
-        verbose_name="Цена", help_text="Введите цену курса"
+        verbose_name="Цена", help_text="Введите цену курса", blank=True, null=True
     )
     last_updated = models.DateTimeField(auto_now=True)
 
@@ -85,7 +85,7 @@ class Lesson(models.Model):
         help_text="Укажите пользователя",
     )
     amount = models.PositiveIntegerField(
-        verbose_name="Цена", help_text="Введите цену курса"
+        verbose_name="Цена", help_text="Введите цену курса", blank=True, null=True
     )
 
     def __str__(self):
