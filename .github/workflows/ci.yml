@@ -66,35 +66,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.8.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Check SSH keys
-        run: ssh-add -L
-
-      - name: Verify SSH Key
-        run: |
-          echo "Проверяем ключ из Secrets:"
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" | ssh-keygen -y -f /dev/stdin | ssh-keygen -lf -
-          echo "Должен совпадать с:"
-          echo "SHA256:1OHexrkkLbMG+RbbAkcGi1nEC8LnZH3abZ/JZJzY3Kc"    
-
-      - name: Add host to known_hosts
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
-
-
-      - name: Deploy to Server
+      - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+
+      - name: Verify Key
+        run: |
+          echo "Проверка ключа:"
+          ssh-keygen -lf ~/.ssh/id_ed25519
+          echo "Ожидаемый отпечаток:"
+          echo "SHA256:1OHexrkkLbMG+RbbAkcGi1nEC8LnZH3abZ/JZJzY3Kc"
+
+      - name: Debug Connection
+        run: |
+          ssh -vvv -o IdentitiesOnly=yes \
+              -i ~/.ssh/id_ed25519 \
+              ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "echo 'Тестовое подключение'"
+
+      - name: Deploy Application
+        run: |
           ssh -o IdentitiesOnly=yes \
               -i ~/.ssh/id_ed25519 \
-              -o StrictHostKeyChecking=no \
               ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
             docker stop myapp || true
