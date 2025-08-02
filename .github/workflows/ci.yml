@@ -66,6 +66,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Check SSH keys
+        run: ssh-add -L
+
+      - name: Verify SSH Key
+        run: |
+          echo "Проверяем ключ из Secrets:"
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" | ssh-keygen -y -f /dev/stdin | ssh-keygen -lf -
+          echo "Должен совпадать с:"
+          echo "SHA256:1OHexrkkLbMG+RbbAkcGi1nEC8LnZH3abZ/JZJzY3Kc"  
+
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.8.0
         with:
@@ -73,7 +83,7 @@ jobs:
 
       - name: Deploy to Server
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+          ssh -vvv -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
             docker stop myapp || true
             docker rm myapp || true
