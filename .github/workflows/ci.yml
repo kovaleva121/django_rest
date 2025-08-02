@@ -86,13 +86,15 @@ jobs:
               -i ~/.ssh/id_ed25519 \
               ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "echo 'Тестовое подключение'"
 
-      - name: Deploy Application
+      - name: Deploy
         run: |
-          ssh -o IdentitiesOnly=yes \
-              -i ~/.ssh/id_ed25519 \
-              ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
-            docker stop myapp || true
-            docker rm myapp || true
-            docker run -d --name myapp -p 80:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
-          EOF
+          ssh_command() {
+            ssh -o StrictHostKeyChecking=no \
+                -i <(echo "${{ secrets.SSH_PRIVATE_KEY }}") \
+                ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "$1"
+          }
+
+          ssh_command "docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}"
+          ssh_command "docker stop myapp || true"
+          ssh_command "docker rm myapp || true"
+          ssh_command "docker run -d --name myapp -p 80:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}"
