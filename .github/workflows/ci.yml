@@ -66,6 +66,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
       - name: Check SSH keys
         run: ssh-add -L
 
@@ -74,12 +79,7 @@ jobs:
           echo "Проверяем ключ из Secrets:"
           echo "${{ secrets.SSH_PRIVATE_KEY }}" | ssh-keygen -y -f /dev/stdin | ssh-keygen -lf -
           echo "Должен совпадать с:"
-          echo "SHA256:1OHexrkkLbMG+RbbAkcGi1nEC8LnZH3abZ/JZJzY3Kc"  
-
-      - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.8.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          echo "SHA256:1OHexrkkLbMG+RbbAkcGi1nEC8LnZH3abZ/JZJzY3Kc"    
 
       - name: Deploy to Server
         run: |
