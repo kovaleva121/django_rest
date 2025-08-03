@@ -66,35 +66,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Setup SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Verify Key
+      - name: Check SSH user
         run: |
-          echo "Проверка ключа:"
-          ssh-keygen -lf ~/.ssh/id_ed25519
-          echo "Ожидаемый отпечаток:"
-          echo "SHA256:1OHexrkkLbMG+RbbAkcGi1nEC8LnZH3abZ/JZJzY3Kc"
+          echo "Подключаемся как пользователь: ${{ secrets.SSH_USER }}"
+          echo "Ключ будет использован для:"
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" | ssh-keygen -y -f /dev/stdin | ssh-keygen -lf -    
 
-      - name: Debug Connection
+      - name: Deploy to Server
         run: |
-          ssh -vvv -o IdentitiesOnly=yes \
-              -i ~/.ssh/id_ed25519 \
-              ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "echo 'Тестовое подключение'"
-
-      - name: Deploy
-        run: |
-          ssh_command() {
-            ssh -o StrictHostKeyChecking=no \
-                -i <(echo "${{ secrets.SSH_PRIVATE_KEY }}") \
-                ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "$1"
-          }
-
-          ssh_command "docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}"
-          ssh_command "docker stop myapp || true"
-          ssh_command "docker rm myapp || true"
-          ssh_command "docker run -d --name myapp -p 80:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}"
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
+            docker stop myapp || true
+            docker rm myapp || true
+            docker run -d --name myapp -p 80:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
+          EOF
