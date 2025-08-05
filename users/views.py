@@ -1,16 +1,31 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.filters import OrderingFilter
-from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView, RetrieveAPIView, DestroyAPIView, \
-    get_object_or_404
+from rest_framework.generics import (
+    CreateAPIView,
+    ListAPIView,
+    UpdateAPIView,
+    RetrieveAPIView,
+    DestroyAPIView,
+    get_object_or_404,
+)
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from materials.models import Course, Lesson
+from materials.models import Course
 from users.models import Payments, User, Subscription
-from users.serializers import PaymentsSerializer, UserSerializer, UserUpdateSerializer, SubscriptionSerializer
-from users.services import create_stripe_product, create_stripe_price, create_stripe_session
+from users.serializers import (
+    PaymentsSerializer,
+    UserSerializer,
+    UserUpdateSerializer,
+
+)
+from users.services import (
+    create_stripe_product,
+    create_stripe_price,
+    create_stripe_session,
+)
 
 
 class PaymentsCreateApiView(CreateAPIView):
@@ -31,8 +46,8 @@ class PaymentsListApiView(ListAPIView):
     queryset = Payments.objects.all()
     serializer_class = PaymentsSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter]
-    filterset_fields = ['payment_course', 'payment_lesson', 'payment_method']
-    ordering_fields = ['payment_date']
+    filterset_fields = ["payment_course", "payment_lesson", "payment_method"]
+    ordering_fields = ["payment_date"]
 
 
 class PaymentsUpdateApiView(UpdateAPIView):
@@ -89,9 +104,9 @@ class UserDestroyAPIView(DestroyAPIView):
 
 
 class SubscriptionApiView(APIView):
-    def post(self, *args, **kwargs):
+    def post(self, request):
         user = self.request.user
-        course_id = self.request.data.get('course_id')
+        course_id = self.request.data.get("course_id")
         course_item = get_object_or_404(Course, id=course_id)
         subs_item = Subscription.objects.filter(user=user, course=course_item)
 
@@ -100,4 +115,6 @@ class SubscriptionApiView(APIView):
             return Response({"message": "подписка удалена"}, status=status.HTTP_200_OK)
         else:
             Subscription.objects.create(user=user, course=course_item)
-            return Response({"message": "подписка добавлена"}, status=status.HTTP_201_CREATED)
+            return Response(
+                {"message": "подписка добавлена"}, status=status.HTTP_201_CREATED
+            )

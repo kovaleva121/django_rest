@@ -5,7 +5,13 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView, RetrieveAPIView, DestroyAPIView
+from rest_framework.generics import (
+    CreateAPIView,
+    ListAPIView,
+    UpdateAPIView,
+    RetrieveAPIView,
+    DestroyAPIView,
+)
 from materials.models import Course, Lesson
 from materials.paginators import CoursePagination, LessonPagination
 from materials.serializers import CourseSerializer, LessonSerializer
@@ -13,9 +19,12 @@ from users.permissions import IsModer, IsOwner
 from users.tasks import send_course_update_emails
 
 
-@method_decorator(name='list', decorator=swagger_auto_schema(
-    operation_description="description from swagger_auto_schema via method_decorator"
-))
+@method_decorator(
+    name="list",
+    decorator=swagger_auto_schema(
+        operation_description="description from swagger_auto_schema via method_decorator"
+    ),
+)
 class CourseViewSet(ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
@@ -30,20 +39,20 @@ class CourseViewSet(ModelViewSet):
         course.save()
 
     def get_permissions(self):
-        if self.action == 'create':
+        if self.action == "create":
             self.permission_classes = (~IsModer,)
-        elif self.action in ['update', 'retrieve', 'partial_update']:
+        elif self.action in ["update", "retrieve", "partial_update"]:
             self.permission_classes = (IsModer | IsOwner,)
-        elif self.action == 'destroy':
+        elif self.action == "destroy":
             self.permission_classes = (~IsModer | IsOwner,)
         return super().get_permissions()
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        context['request'] = self.request
+        context["request"] = self.request
         return context
 
-    @action(detail=True, methods=['post'], url_path='update-course')
+    @action(detail=True, methods=["post"], url_path="update-course")
     def update_course(self, request, pk=None):
         """
         Кастомное действие для обновления курса и рассылки уведомлений
@@ -60,12 +69,12 @@ class CourseViewSet(ModelViewSet):
 
         return Response(
             {"message": "Курс успешно обновлен", "data": serializer.data},
-            status=status.HTTP_200_OK
+            status=status.HTTP_200_OK,
         )
 
     def perform_update(self, serializer):
         """Переопределяем метод обновления для добавления кастомной логики"""
-        instance = serializer.save()
+        serializer.save()
 
 
 class LessonCreateApiView(CreateAPIView):

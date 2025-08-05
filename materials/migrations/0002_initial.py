@@ -10,24 +10,40 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('materials', '0001_initial'),
+        ("materials", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='course',
-            name='owner',
-            field=models.ForeignKey(help_text='Укажите пользователя', on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='Пользователь'),
+            model_name="course",
+            name="owner",
+            field=models.ForeignKey(
+                help_text="Укажите пользователя",
+                on_delete=django.db.models.deletion.CASCADE,
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="Пользователь",
+            ),
         ),
         migrations.AddField(
-            model_name='lesson',
-            name='course',
-            field=models.ForeignKey(help_text='Выберите курс', on_delete=django.db.models.deletion.CASCADE, related_name='lessons', to='materials.course', verbose_name='lessons'),
+            model_name="lesson",
+            name="course",
+            field=models.ForeignKey(
+                help_text="Выберите курс",
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="lessons",
+                to="materials.course",
+                verbose_name="lessons",
+            ),
         ),
         migrations.AddField(
-            model_name='lesson',
-            name='owner',
-            field=models.ForeignKey(help_text='Укажите пользователя', on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='Пользователь'),
+            model_name="lesson",
+            name="owner",
+            field=models.ForeignKey(
+                help_text="Укажите пользователя",
+                on_delete=django.db.models.deletion.CASCADE,
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="Пользователь",
+            ),
         ),
     ]
